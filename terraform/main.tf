@@ -18,7 +18,7 @@ resource "docker_image" "hola_mundo_image" {
 
 resource "docker_container" "hola_mundo_container" {
   name  = "hola-mundo-app"
-  image = docker_image.hola_mundo_image.latest
+  image = docker_image.hola_mundo_image.output
   ports {
     internal = 8080
     external = 8083
