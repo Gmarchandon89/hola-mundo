@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    tools {
+        maven 'Maven'
+        terraform 'Terraform'
+    }
     stages {
         stage('Build') {
             steps {
@@ -12,24 +16,26 @@ pipeline {
             }
         }
         stage('Deploy') {
-            steps {
-                bat 'docker build -t hola-mundo-app .'
-                bat '''
-                if [ $(docker ps -q -f name=hola-mundo-app) ]; then
-                    docker rm -f hola-mundo-app
-                fi
-                '''
-                bat 'docker run -d --name hola-mundo-app -p 8080:8080 hola-mundo-app'
-            }
+    steps {
+        bat 'docker build -t hola-mundo-app .'
+        powershell '''
+        $container = docker ps -q -f name=hola-mundo-app
+        if ($container) {
+            docker rm -f hola-mundo-app
         }
+        docker run -d --name hola-mundo-app -p 8083:8080 hola-mundo-app
+        '''
+    }
+}
+
+ 
         stage('Infrastructure') {
             steps {
                 dir('terraform') {
-                    bar 'terraform init'
-                    bar 'terraform apply -auto-approve'
+                    bat 'terraform init'
+                    bat 'terraform apply -auto-approve'
                 }
             }
         }
     }
 }
-
